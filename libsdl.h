@@ -12,11 +12,22 @@ typedef struct Window{
 	int height;
 } Window;
 
+typedef struct RGB{
+	int red;
+	int green;
+	int blue;
+} RGB;
+
 void startSDL();
+
 void endSDL(Window*);
+
 Window* createWindow(int, int, char*);
-void setColor(Window*, int, int, int);
-void waitclose(Window*);
+
+RGB hexToRGB(const int hex);
+
+void setColor(Window*, const int);
+
 void drawRect(Window*, int, int, int, int);
 
 #endif //LIBSDL
