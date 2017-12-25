@@ -13,6 +13,7 @@ void endSDL(Window *w){
 }
 
 Window* createWindow(int width, int height, char *title){
+	startSDL();
 	Window *w = malloc(sizeof(*w));
 	w->width = width;
 	w->height = height;
@@ -22,16 +23,27 @@ Window* createWindow(int width, int height, char *title){
 		fprintf(stderr, "Error: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
-	setColor(w, 255, 255, 255);
+	setColor(w, 0xFFF);
 	SDL_WM_SetCaption(title, NULL);
 	SDL_FillRect(w->screen, NULL, w->color);
 	SDL_Flip(w->screen);
-	setColor(w, 0, 0, 0);
+	setColor(w, 0x000);
 	return w;
 }
 
-void setColor(Window *w, int r, int g, int b){
-	w->color = SDL_MapRGB(w->screen->format, r, g, b);
+RGB hexToRGB(const int hex){
+	int m = (hex > 0xFFF) ? 0x1 : 0x11;
+	RGB col = {
+		(hex >> 0x8*(0x2-(m >> 0x4)) & 0xFF/m)*m,
+		(hex >> 0x4*(0x2-(m >> 0x4)) & 0xFF/m)*m,
+		(hex >> 0x0*(0x2-(m >> 0x4)) & 0xFF/m)*m
+	};
+	return col;
+}
+
+void setColor(Window *w, const int hex){
+	RGB col = hexToRGB(hex);
+	w->color = SDL_MapRGB(w->screen->format, col.red, col.green, col.blue);
 }
 
 void drawRect(Window *w, int x, int y, int width, int height){
@@ -42,17 +54,4 @@ void drawRect(Window *w, int x, int y, int width, int height){
 	SDL_FillRect(rect, NULL, w->color);
 	SDL_BlitSurface(rect, NULL, w->screen, &pos);
 	SDL_FreeSurface(rect);
-}
-
-void waitclose(Window *w){
-	int close = 0;
-	SDL_Event event;
-	while(!close){
-		SDL_PollEvent(&event);
-		if(event.type == SDL_QUIT){
-			close = 1;
-		}
-		//loop();
-		SDL_Flip(w->screen);
-	}
 }
